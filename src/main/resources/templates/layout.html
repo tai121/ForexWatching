@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thyme leaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <th:block th:fragment="head">
+        <link rel="stylesheet" type="text/css"
+              href="/webjars/bootstrap/css/bootstrap.min.css" />
+        <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+        <script type="text/javascript"
+                src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+        <style>
+            .dropdown-menu {
+                display: none;
+            }
+
+            li.dropdown {
+                position: relative;
+            }
+
+            li.dropdown:hover .dropdown-menu {
+                display: block;
+            }
+        </style>
+        <style >
+            .dropdown-menu {
+                display: none;
+            }
+
+            li.dropdown {
+                position: relative;
+            }
+
+            li.dropdown:hover .dropdown-menu {
+                display: block;
+            }
+        </style>
+    </th:block>
+
+</head>
+<body>
+<header th:fragment="header">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a  class="navbar-brand" href="/">Home</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbar SupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="dropdown"> Categories
+                        <ul class="dropdown-menu" >
+                            <li  th:each="category : ${categories}">
+                                <a th:href="@{'/data/listsymbol/'+${category.name}}"  th:text="${category.name}"></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li sec:authorize="isAuthenticated()" style="position: relative">
+                        <form th:action="@{/logout}" method="post">
+                            <button class="btn btn-outline-danger"type="submit" >Log out</button>
+                        </form>
+                    </li>
+                    <li sec:authorize="!isAuthenticated()" style="position: relative">
+                        <a class="btn btn-outline-primary" href="/login">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+</body>
+</html>

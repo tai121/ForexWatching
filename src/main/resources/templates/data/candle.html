@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <th:block th:replace="layout::head"></th:block>
+  <script type="text/javascript">
+    window.onload = function () {
+      var xx = []
+
+      $.ajax({
+        url: 'http://localhost:8080/api/symbols/'+'[[${symbol}]]',
+        type: 'GET',
+        dataType: 'json',
+        success: function (data){
+          console.log(data)
+          $.each(data,function (i,item){
+            xx.push({x: new Date(item.date),y:[item.open, item.high, item.low, item.close]});
+          });
+          console.log(xx)
+          var chart = new CanvasJS.Chart("chartContainer",
+                  {
+                    title:{
+                      text: "Candle Stick",
+                      fontFamily: "times new roman"
+                    },
+                    zoomEnabled: true,
+                    exportEnabled: true,
+                    axisY: {
+                      includeZero:false,
+                      title: "Prices",
+                      prefix: "$ "
+                    },
+                    axisX: {
+                      interval:2,
+                      intervalType: "month",
+                      valueFormatString: "MMM-YY",
+                      labelAngle: -45
+                    },
+                    data: [
+                      {
+                        type: "candlestick",
+                        risingColor: "green",
+                        color: "red",
+                        dataPoints: xx
+                      }
+                    ]
+                  });
+          chart.render();
+
+        }
+      });
+      // console.log(xx)
+
+    }
+  </script>
+  <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+</head>
+<body>
+<th:block th:replace="layout::header"></th:block>
+<div id="chartContainer" style="height: 300px; width: 100%;">
+</div>
+</body>
+</html>

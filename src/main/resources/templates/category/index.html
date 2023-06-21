@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Category Table</title>
+  <th:block th:replace="layout::head"></th:block>
+
+  <style>
+    table.dataTable thead th {
+      font-weight: bold;
+      text-align: center;
+      background-color: #007bff;
+      color: #ffffff;
+      border: 1px solid #dee2e6;
+    }
+
+    table.dataTable tbody td {
+      text-align: center;
+      border: 1px solid #dee2e6;
+    }
+  </style>
+</head>
+<body>
+<th:block th:replace="layout::header"></th:block>
+<h1>Category Table</h1>
+<table border="1" class="table table table-hover table-bordered">
+  <thead>
+  <tr class="text-center align-middle">
+    <th>Name</th>
+    <th>Description</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="text-center align-middle" th:each="category  : ${categoryList}">
+    <td th:text="${category.name}"></td>
+    <td th:text="${category.description}"></td>
+    <td>
+      <div >
+        <a th:href="@{'/category/edit/' + ${category.id}}">Edit</a>
+      </div>
+      <div >
+        <a th:href="@{'/category/delete/' + ${category.id}}">Delete</a>
+      </div>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

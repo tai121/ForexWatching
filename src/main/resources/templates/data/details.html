@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Details</title>
+  <th:block th:replace="layout::head"></th:block>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" integrity="sha384-QYnJhT9V5Yh8XUPzQ2UjxO6zVBLS5D8kFzvZyg4m8fKmRnLmJ7hG4vM5m2d5v8N9" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.19.2/dist/bootstrap-table.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha384-QWoJ6F9yPpJ6sxy1n/s7oPvX+9r+3GGlma5iGf6dI/3oQMZz97Z2m9LyU8v/SpnN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-5kFpDh1jtlZnnNkQO3aLpP9a5p+SfCwUZcNz43Vj9htfOZLQ0n3n8Gj9lB4tqz3E" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.19.2/dist/bootstrap-table.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.19.2/dist/locale/bootstrap-table-vi-VN.min.js"></script>
+    <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+    <style>
+        .content-block {
+            display: none;
+        }
+
+        .content-block.active {
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+<th:block th:replace="layout::header"></th:block>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#" data-target="#block1">Historical Data</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-target="#block2">Candle Stick Chart</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-target="#block3">Line Chart</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id="block1" class="content-block">
+    <table id="dataTable" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+        <thead>
+        <tr>
+            <th class="th-sm">Date</th>
+            <th class="th-sm">Open</th>
+            <th class="th-sm">High</th>
+            <th class="th-sm">Low</th>
+            <th class="th-sm">Close</th>
+            <th class="th-sm">Volume</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${data}">
+            <td th:text="${row.date}"></td>
+            <td th:text="${row.open}"></td>
+            <td th:text="${row.high}"></td>
+            <td th:text="${row.low}"></td>
+            <td th:text="${row.close}"></td>
+            <td th:text="${row.volume}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="block2" class="content-block" style="display: none;">
+    <div id="chartContainer" style="height: 300px; width: 100%;">
+    </div>
+</div>
+
+<div id="block3" class="content-block" style="display: none;">
+    <div id="chartContainer1" style="height: 300px; width: 100%;">
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        // Hiển thị block đầu tiên mặc định
+        $('#block1').fadeIn();
+
+        // Khi lựa chọn được chọn, thay đổi class của khối tương ứng
+        $('.nav-link').click(function() {
+            if ($(this).hasClass('active')) {
+                return;
+            }
+            $('.nav-link').removeClass('active');
+            $(this).addClass('active');
+            var target = $(this).data('target');
+            $('.content-block').removeClass('active').fadeOut(function() {
+                $(target).addClass('active').fadeIn();
+            });
+        });
+        var xx = []
+
+        $.ajax({
+            url: 'http://localhost:8080/api/symbols/'+'[[${symbol}]]',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data){
+                console.log(data)
+                $.each(data,function (i,item){
+                    xx.push({x: new Date(item.date),y:[item.open, item.high, item.low, item.close]});
+                });
+                console.log(xx)
+                var chart = new CanvasJS.Chart("chartContainer",
+                    {
+                        title:{
+                            text: '[[${symbol}]]',
+                            fontFamily: "times new roman"
+                        },
+                        zoomEnabled: true,
+                        exportEnabled: true,
+                        axisY: {
+                            includeZero:false,
+                            title: "Prices",
+                            prefix: "$ "
+                        },
+                        axisX: {
+                            interval:2,
+                            intervalType: "month",
+                            valueFormatString: "MMM-YY",
+                            labelAngle: -45
+                        },
+                        data: [
+                            {
+                                type: "candlestick",
+                                risingColor: "green",
+                                color: "red",
+                                dataPoints: xx
+                            }
+                        ]
+                    });
+                chart.render();
+
+            }
+        });
+        $.ajax({
+            url: 'http://localhost:8080/api/symbols/'+'[[${symbol}]]',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                console.log(data)
+                $.each(data, function (i, item) {
+                    xx.push({x: new Date(item.date), y: item.close});
+                });
+                console.log(xx)
+                var chart = new CanvasJS.Chart("chartContainer1",
+                    {
+                        title: {
+                            text: '[[${symbol}]]'
+                        },
+                        data: [
+                            {
+                                type: "line",
+                                dataPoints: xx
+                            }]
+                    });
+
+                chart.render();
+
+            }
+        });
+    });
+
+</script>
+</body>
+</html>
